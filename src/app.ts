@@ -1,19 +1,21 @@
 import 'reflect-metadata';
 import express from 'express';
 import { config } from 'dotenv';
+import { InversifyExpressServer } from 'inversify-express-utils';
+import container from './config/inversify.config';
 
 config();
 
-const app = express();
-const port = process.env.PORT || 3000;
+const server = new InversifyExpressServer(container);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.get('/', (req, res) => {
-  res.send('Servidor rodando!');
+server.setConfig((app) => {
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 });
 
-app.listen(port, () => {
+const appConfigured = server.build();
+const port = process.env.PORT || 3000;
+
+appConfigured.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
